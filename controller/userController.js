@@ -35,7 +35,7 @@ export const userLogin = async (req, res) => {
         const { email, password } = req.body;
         let user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(403).json({ message: "User not found" });
         }
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
@@ -76,11 +76,6 @@ export const UploadImages = async (req, res) => {
         const { titles } = req.body; 
         const { _id } = req.user; 
         const files = req.files;   
-        if (!titles || !files || titles.length !== files.length) {
-            return res.status(400).json({
-                message: "Number of titles and images must match",
-            });
-        }
         const maxOrderDoc = await Image.find({ userId: _id }).sort({ order: -1 }).limit(1);
         let currentOrder = maxOrderDoc.length ? maxOrderDoc[0].order : 0;
         const uploadedData = [];
@@ -125,9 +120,9 @@ export const getImages = async (req, res) => {
 
 
 export const editImage = async (req, res) => {
-    try {
+    try {        
         const { imageId } = req.params;
-        const { title } = req.body;
+        const { title } = req.body;        
         let imageUrl;
         if (!title) {
             return res.status(400).json({ message: "Title is required." });
